@@ -1,0 +1,38 @@
+[input]
+
+  [input.excelfile]
+  Type = "excelfile"
+  Title = "Select input excel"
+  Text = "Select input excel. The first sheet in the Excel workbook i used."
+
+  [input.outputfolder]
+  Type = "folder"
+  Title = "Select output folder"
+  Text = "Select output folder."
+
+[output]
+
+  [output.sqltemplate]
+  Name = "SQL template"
+  Filename = "output.sql"
+    [output.sqltemplate.escapes]
+	[output.sqltemplate.escapes.quote]
+	Special = "U+0027"
+    Escape = "U+005C U+0027"
+  
+=== sqltemplate
+# SQL template 
+#
+# Insert statement
+#
+{% assign headers = excelfile | row: 0 %}
+{% assign rows = excelfile | rows %}
+
+INSERT INTO `{{ excelfile.Name | downcase }}` ({% for header in headers %}
+{% if forloop.last == false %}`{{ header }}`,{% else %}`{{ header }}`{% endif %}
+{% endfor %}) VALUES
+{% for row in rows offset:1 %}
+({% for field in row %}
+{% if forloop.last == false %}'{{ field }}',{% else %}'{{ field }}'{% endif %}{% endfor %}){% if forloop.last == false %},
+{% endif %}
+{% endfor %}
